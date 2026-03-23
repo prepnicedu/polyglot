@@ -1,0 +1,33 @@
+module(
+    name = "bazel_microservices",
+    version = "1.0.0",
+)
+
+bazel_dep(name = "aspect_rules_js", version = "3.0.3")
+bazel_dep(name = "rules_nodejs", version = "6.7.3")
+bazel_dep(name = "rules_oci", version = "2.3.0")
+bazel_dep(name = "rules_helm", version = "0.22.1")
+
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
+node.toolchain(node_version = "22.14.0")
+
+pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm", dev_dependency = True)
+use_repo(pnpm, "pnpm")
+
+npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm", dev_dependency = True)
+npm.npm_translate_lock(
+    name = "npm",
+    pnpm_lock = "//:pnpm-lock.yaml",
+    verify_node_modules_ignored = "//:.bazelignore",
+)
+use_repo(npm, "npm")
+
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+oci.pull(
+    name = "distroless_nodejs",
+    image = "gcr.io/distroless/nodejs22-debian12",
+    # Remove the `tag = "latest"` line and replace it with this digest:
+    digest = "sha256:8a3e96fe3345b5d83ecec2066e7c498139a02a6d1214e4f6c39f9ce359f3f5bc",
+    platforms =["linux/amd64", "linux/arm64/v8", "linux/arm/v7", "linux/s390x", "linux/ppc64le"],
+)
+use_repo(oci, "distroless_nodejs")

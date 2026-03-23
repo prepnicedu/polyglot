@@ -1,0 +1,4 @@
+apiVersion: v2
+name: microservice
+version: 1.0.0
+description: A generic Helm chart for Node.js microservices built by Bazel

@@ -1,0 +1,10 @@
+load("@rules_helm//helm:defs.bzl", "helm_chart")
+
+package(default_visibility = ["//visibility:public"])
+
+helm_chart(
+    name = "microservice_chart",
+    chart = "Chart.yaml",
+    values = "values.yaml",
+    templates = glob(["templates/**/*.yaml"]),
+)

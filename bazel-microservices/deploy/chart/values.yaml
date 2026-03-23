@@ -1,0 +1,6 @@
+name: "default-microservice"
+image:
+  repository: ""
+  tag: "latest"
+service:
+  port: 3000

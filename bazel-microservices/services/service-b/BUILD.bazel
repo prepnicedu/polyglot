@@ -1,0 +1,42 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_image_layer")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load", "oci_push")
+load("@rules_helm//helm:defs.bzl", "helm_template")
+
+js_binary(
+    name = "app",
+    entry_point = "index.js",
+    data = ["//:node_modules/express"],
+)
+
+js_image_layer(
+    name = "layers",
+    binary = ":app",
+    root = "/app",
+)
+
+oci_image(
+    name = "image",
+    base = "@distroless_nodejs",
+    cmd =["services/service-b/index.js"],
+    workdir = "/app/services/service-b/app.runfiles/_main",
+    tars = [":layers"],
+)
+
+oci_load(
+    name = "load_docker",
+    image = ":image",
+    repo_tags =["my-service-b:latest"],
+)
+
+oci_push(
+    name = "push_registry",
+    image = ":image",
+    repository = "localhost:5000/my-service-b",
+    remote_tags = ["latest"],
+)
+
+helm_template(
+    name = "service-b", # <-- This automatically becomes the Helm Release Name!
+    chart = "//deploy/chart:microservice_chart",
+    values = ["values.yaml"],
+)

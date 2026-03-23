@@ -1,0 +1,26 @@
+allow_k8s_contexts('kind-kind')
+
+bazel_bin = 'bazel-bin'
+
+def setup_service(service_name, port):
+    # A. Build the image natively
+    custom_build(
+        'my-{}'.format(service_name),
+        # FIX: We added `&& docker tag ...` to bridge Bazel's output to Tilt's expectations!
+        'bazel run //services/{0}:load_docker && docker tag my-{0}:latest $EXPECTED_REF'.format(service_name),
+        deps=['services/{}'.format(service_name), 'package.json', 'pnpm-lock.yaml'],
+        # disable_push=True 
+    )
+    
+    # B. Ask Bazel to render the Helm chart.
+    local('bazel build //services/{}:{}'.format(service_name, service_name))
+    
+    # C. Read the rendered K8s YAML. 
+    k8s_yaml('{}/services/{}/{}.yaml'.format(bazel_bin, service_name, service_name))
+    
+    # D. Port-forward
+    k8s_resource(service_name, port_forwards=['{}:{}'.format(port, port)])
+
+# Register our microservices
+setup_service('service-a', 3001)
+setup_service('service-b', 3002)

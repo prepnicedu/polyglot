@@ -1,0 +1,6 @@
+name: "service-b"  # <-- ADD THIS LINE
+image:
+  repository: "my-service-b"
+  tag: "latest"
+service:
+  port: 3002
