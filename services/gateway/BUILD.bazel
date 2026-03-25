@@ -1,0 +1,29 @@
+# ./services/gateway/BUILD.bazel
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("@rules_helm//helm:defs.bzl", "helm_template")
+
+pkg_tar(
+    name = "config_layer",
+    srcs = ["envoy.yaml"],
+    package_dir = "/etc/envoy",
+)
+
+oci_image(
+    name = "image",
+    base = "@envoy_base", 
+    tars = [":config_layer"],
+    cmd = ["-c", "/etc/envoy/envoy.yaml"],
+)
+
+oci_load(
+    name = "load_docker",
+    image = ":image",
+    repo_tags = ["my-gateway:latest"],
+)
+
+helm_template(
+    name = "gateway",
+    chart = "//deploy/chart:microservice_chart",
+    values = ["values.yaml"],
+)

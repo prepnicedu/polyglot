@@ -1,3 +1,4 @@
+# ./services/service-b/BUIL.bazel
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_image_layer")
 load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load", "oci_push")
 load("@rules_helm//helm:defs.bzl", "helm_template")

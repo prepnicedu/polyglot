@@ -1,0 +1,7 @@
+# ./services/gateway/values.yaml
+name: "gateway"
+image:
+  repository: "my-gateway"
+  tag: "latest"
+service:
+  port: 8080

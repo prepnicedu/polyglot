@@ -1,3 +1,4 @@
+# ./services/service-a/values.yaml
 name: "service-a"  # <-- ADD THIS LINE
 image:
   repository: "my-service-a"

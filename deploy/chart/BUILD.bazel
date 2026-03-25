@@ -1,3 +1,5 @@
+# ./deploy/chart/BUILD.bazel
+
 load("@rules_helm//helm:defs.bzl", "helm_chart")
 
 package(default_visibility = ["//visibility:public"])

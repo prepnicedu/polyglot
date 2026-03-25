@@ -1,5 +1,6 @@
 # Initialize a standard package.json
 bazel run -- @pnpm//:pnpm --dir $PWD init
+bazel run -- @pnpm//:pnpm --dir $PWD install
 
 # Install Express.js (This automatically updates both package.json and pnpm-lock.yaml)
 bazel run -- @pnpm//:pnpm --dir $PWD add express
