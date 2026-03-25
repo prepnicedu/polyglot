@@ -1,13 +1,13 @@
 # ./services/service-a/BUIL.bazel
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_image_layer")
-load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load", "oci_push")
 load("@rules_helm//helm:defs.bzl", "helm_template")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load", "oci_push")
 
 # 1. Standard Node.js execution target
 js_binary(
     name = "app",
+    data = ["//:node_modules/express"],
     entry_point = "index.js",
-    data =["//:node_modules/express"],
 )
 
 # 2. Package the JS app & its dependencies into an image layer
@@ -23,9 +23,9 @@ oci_image(
     base = "@distroless_nodejs",
     # We bypass the bash-wrapper and invoke the Node binary directly
     cmd = ["services/service-a/index.js"],
+    tars = [":layers"],
     # _main is the default Bzlmod workspace name. This mounts us in the runfiles tree.
     workdir = "/app/services/service-a/app.runfiles/_main",
-    tars = [":layers"],
 )
 
 # 4. Load the image into your local Docker Daemon
@@ -39,12 +39,12 @@ oci_load(
 oci_push(
     name = "push_registry",
     image = ":image",
-    repository = "localhost:5000/my-service-a",
     remote_tags = ["latest"],
+    repository = "localhost:5000/my-service-a",
 )
 
 helm_template(
-    name = "service-a", # <-- This automatically becomes the Helm Release Name!
+    name = "service-a",  # <-- This automatically becomes the Helm Release Name!
     chart = "//deploy/chart:microservice_chart",
     values = ["values.yaml"],
 )

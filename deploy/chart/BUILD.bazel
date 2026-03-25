@@ -7,6 +7,6 @@ package(default_visibility = ["//visibility:public"])
 helm_chart(
     name = "microservice_chart",
     chart = "Chart.yaml",
-    values = "values.yaml",
     templates = glob(["templates/**/*.yaml"]),
+    values = "values.yaml",
 )

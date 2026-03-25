@@ -1,0 +1,6 @@
+name: "service-c"
+image:
+  repository: "my-service-c"
+  tag: "latest"
+service:
+  port: 3003

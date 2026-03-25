@@ -22,6 +22,8 @@ static_resources:
                           route: { cluster: service_a, prefix_rewrite: "/" }
                         - match: { prefix: "/service-b" }
                           route: { cluster: service_b, prefix_rewrite: "/" }
+                        - match: { prefix: "/service-c" }
+                          route: { cluster: service_c, prefix_rewrite: "/" }
                 http_filters:
                   - name: envoy.filters.http.router
                     typed_config:
@@ -53,3 +55,16 @@ static_resources:
                     socket_address:
                       address: service-b # Matches K8s Service name
                       port_value: 3002
+    - name: service_c
+      connect_timeout: 0.25s
+      type: LOGICAL_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: service_c
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: service-c # Matches K8s Service name
+                      port_value: 3003

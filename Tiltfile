@@ -30,4 +30,5 @@ def setup_service(service_name, port, is_public=False):
 # Order matters: Services first, Gateway last
 setup_service('service-a', 3001)
 setup_service('service-b', 3002)
+setup_service('service-c', 3003)
 setup_service('gateway', 8080, is_public=True)

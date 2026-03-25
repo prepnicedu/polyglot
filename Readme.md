@@ -13,3 +13,8 @@ bazel run //services/service-b:load_docker
 # 2. Run the image through Docker
 docker run --rm -p 3001:3001 my-service-a:latest
 docker run --rm -p 3002:3002 my-service-b:latest
+
+## Run Go
+bazel run @go_sdk//:bin/go -- mod init bazel_microservices
+bazel run @go_sdk//:bin/go -- get github.com/gin-gonic/gin
+bazel run @go_sdk//:bin/go -- mod tidy

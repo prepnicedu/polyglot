@@ -1,0 +1,43 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+load("@rules_helm//helm:defs.bzl", "helm_template")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
+go_library(
+    name = "service-c_lib",
+    srcs = ["main.go"],
+    importpath = "bazel_microservices/services/service-c",
+    visibility = ["//visibility:private"],
+)
+
+go_binary(
+    name = "app",
+    embed = [":service-c_lib"],
+    goarch = "amd64",
+    goos = "linux",
+    visibility = ["//visibility:public"],
+)
+
+pkg_tar(
+    name = "app_layer",
+    srcs = [":app"],
+)
+
+oci_image(
+    name = "image",
+    base = "@distroless_go_linux_amd64",
+    entrypoint = ["/app"],
+    tars = [":app_layer"],
+)
+
+oci_load(
+    name = "load_docker",
+    image = ":image",
+    repo_tags = ["my-service-c:latest"],
+)
+
+helm_template(
+    name = "service-c",
+    chart = "//deploy/chart:microservice_chart",
+    values = ["values.yaml"],
+)

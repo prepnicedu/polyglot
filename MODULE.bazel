@@ -9,6 +9,8 @@ bazel_dep(name = "rules_nodejs", version = "6.7.3")
 bazel_dep(name = "rules_oci", version = "2.3.0")
 bazel_dep(name = "rules_helm", version = "0.22.1")
 bazel_dep(name = "rules_pkg", version = "1.0.1")
+bazel_dep(name = "rules_go", version = "0.60.0")
+bazel_dep(name = "gazelle", version = "0.47.0")
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 node.toolchain(node_version = "22.14.0")
@@ -24,6 +26,14 @@ npm.npm_translate_lock(
 )
 use_repo(npm, "npm")
 
+go_sdk = use_extension("@rules_go//go:extensions.bzl", "go_sdk")
+go_sdk.download(version = "1.23.1")
+use_repo(go_sdk, go_sdk = "go_default_sdk")
+
+# 2. Configure Gazelle to use your root go.mod
+go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
+go_deps.from_file(go_mod = "//:go.mod")
+
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
 
 # Pull Envoy Image
@@ -35,7 +45,6 @@ oci.pull(
 )
 oci.pull(
     name = "distroless_nodejs",
-    # Remove the `tag = "latest"` line and replace it with this digest:
     digest = "sha256:8a3e96fe3345b5d83ecec2066e7c498139a02a6d1214e4f6c39f9ce359f3f5bc",
     image = "gcr.io/distroless/nodejs22-debian12",
     platforms = [
@@ -46,4 +55,12 @@ oci.pull(
         "linux/ppc64le",
     ],
 )
-use_repo(oci, "distroless_nodejs", "distroless_nodejs_linux_amd64", "distroless_nodejs_linux_arm64_v8", "distroless_nodejs_linux_arm_v7", "distroless_nodejs_linux_ppc64le", "distroless_nodejs_linux_s390x", "envoy_base", "envoy_base_linux_amd64")
+
+oci.pull(
+    name = "distroless_go",
+    image = "gcr.io/distroless/static-debian12",
+    digest = "sha256:20bc6c0bc4d625a22a8fde3e55f6515709b32055ef8fb9cfbddaa06d1760f838",
+    platforms = ["linux/amd64"],
+)
+
+use_repo(oci, "distroless_nodejs", "distroless_nodejs_linux_amd64", "distroless_nodejs_linux_arm64_v8", "distroless_nodejs_linux_arm_v7", "distroless_nodejs_linux_ppc64le", "distroless_nodejs_linux_s390x", "envoy_base", "envoy_base_linux_amd64", "distroless_go", "distroless_go_linux_amd64")
